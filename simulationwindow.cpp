@@ -19,7 +19,6 @@ SimulationWindow::SimulationWindow(QWidget *parent) :
     connect(ui->StartButton_2,SIGNAL(clicked()),this,SLOT(on_StartButton_clicked()));
     connect(ui->PauseButton_2,SIGNAL(clicked()),this,SLOT(on_PauseButton_clicked()));
     connect(ui->ResetButton_2,SIGNAL(clicked()),this,SLOT(on_ResetButton_clicked()));
-    //timer->start(10);
     //Init Charts
     foxPopulation = new QChart();
     foxPopulationS = new QLineSeries(foxPopulation);
@@ -145,6 +144,8 @@ SimulationWindow::~SimulationWindow()
     delete rabbitSenseRadiusS;
     delete rabbitEnergyEfficiencyS;
 
+    delete totalPlants;
+    delete totalPlantsS;
     delete timer;
     delete ui;
 }
