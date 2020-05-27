@@ -27,7 +27,7 @@ Gens Animal::CalcNewGens(const Animal *father)const{
     std::random_device rd;
     std::mt19937 mt(rd());
     std::uniform_real_distribution<float> dist(0,100);
-    std::uniform_int_distribution<char> randBool(0,1);
+    std::uniform_int_distribution<short> randBool(0,1);
    // float random = dist(mt);
     Gens newGens;
     //Gens from wich parent
