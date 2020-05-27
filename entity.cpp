@@ -2,13 +2,7 @@
 #include "plant.h"
 #include "animal.h"
 int Entity::idCount = 0;
-/*
-Entity::Entity(){
-    pos = Vector2(0,0);
-    id = this->idCount;
-    this->idCount++;
-}
-*/
+
 Entity::Entity(const Vector2 &actPos, Enviroment * enviroment)
 {
     pos = actPos;
@@ -23,9 +17,6 @@ void Entity::setnextEnviroment(Enviroment *nextEnviroment){
 
 
 void Enviroment::newPlants(const int amountOfNewPlants){
-    std::random_device rd;
-    std::mt19937 mt(rd());
-    std::uniform_int_distribution<int> dist(0,100);
     for(int i = 0;i<amountOfNewPlants;i++){
         addEntity(std::make_shared<Plant>(Vector2::randomVec(minCoordinates,maxCoordinates),this));
     }
