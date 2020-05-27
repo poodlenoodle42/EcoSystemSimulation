@@ -1,11 +1,9 @@
 #include "simulationview.h"
 #include <QPainter>
 #include "rabbit.h"
-#include <QDebug>
 #include <QMouseEvent>
 SimulationView::SimulationView(QWidget * parent) : QOpenGLWidget(parent)
 {
-    qDebug() << "SimViewCalled";
     lastClickedAnimal = std::make_shared<Rabbit>(Vector2(-10,-10),nullptr,15);
     lastClickedAnimal->dead = true;
 }
