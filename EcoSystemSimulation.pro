@@ -14,7 +14,7 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
     simulationview.cpp \
-        simulationwindow.cpp \
+    simulationwindow.cpp \
     vector2.cpp \
     entity.cpp \
     animal.cpp \
@@ -29,7 +29,6 @@ HEADERS  += simulationwindow.h \
     animal.h \
     rabbit.h \
     plant.h \
-    fox.h \
-    reproducefunction.h
+    fox.h
 
 FORMS    += simulationwindow.ui
