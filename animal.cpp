@@ -4,6 +4,7 @@
 //
 Animal::Animal(Vector2 pos, Enviroment * enviroment, float mutateProbability) : Entity(pos,enviroment)
 {
+    std::lock_guard<std::mutex> lock(accessEntity);
     this->mutateProbability = mutateProbability;
     std::random_device rd;
     std::mt19937 mt(rd());
@@ -31,9 +32,13 @@ Gens Animal::CalcNewGens(const Animal *father)const{
    // float random = dist(mt);
     Gens newGens;
     //Gens from wich parent
-    newGens.speed = randBool(mt) ? father->gens.speed : this->gens.speed;
-    newGens.senseRadius = randBool(mt) ? father->gens.senseRadius : this->gens.senseRadius;
-    newGens.energyEfficiency = randBool(mt) ? father->gens.energyEfficiency : this->gens.energyEfficiency;
+    {
+        std::lock_guard lockfather(father->accessEntity);
+        std::lock_guard lockmother(accessEntity);
+        newGens.speed = randBool(mt) ? father->gens.speed : this->gens.speed;
+        newGens.senseRadius = randBool(mt) ? father->gens.senseRadius : this->gens.senseRadius;
+        newGens.energyEfficiency = randBool(mt) ? father->gens.energyEfficiency : this->gens.energyEfficiency;
+    }
     if(dist(mt) < mutateProbability){
         if(dist(mt)>=50){//50-50 of Positive or negativ mutation
             newGens.energyEfficiency += 0.3f;
@@ -86,6 +91,7 @@ float Animal::getHunger() const
 
 
 void Animal::calcMostNeed(){
+    std::lock_guard lock(accessEntity);
     if(hunger>thirst && hunger>=urgeToReproduce){
         mostNeed = MostNeed::Foot;
     }
@@ -98,7 +104,7 @@ void Animal::calcMostNeed(){
 }
 
 void Animal::eat(Entity &eaten){
-
+    std::lock_guard lockeaten(eaten.accessEntity);
     int entityIndex = nextEnviroment->getEntityIndexByID(eaten.id);
     if(entityIndex == -1 ){
         // Entity with this id was already deleted for some reason
@@ -107,6 +113,7 @@ void Animal::eat(Entity &eaten){
     else{
         eaten.dead = true;
         nextEnviroment->removeEntity(entityIndex);
+        std::lock_guard lockthis(accessEntity);
         if(this->eType == EntityType::Fox){
             this->hunger -= 20;
         }
