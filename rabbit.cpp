@@ -17,6 +17,7 @@ Rabbit::Rabbit(Vector2 pos, Enviroment * enviroment,float mutateProbability):Ani
 }
 
 void Rabbit::update() {
+    std::lock_guard thisLock(accessEntity);
     if(this->hunger > 200){
         //Starving to death
         this->dead = true;
@@ -42,38 +43,43 @@ void Rabbit::update() {
     calcMostNeed();
     EntityType entityTypeToInteract = EntityType::Plant;
     for(const std::shared_ptr<Entity> entity : currentEnviroment->Entitys){
-        float dis = Vector2::distance(this->pos, entity->pos);
-        if(dis <= gens.senseRadius){
-            if(entity->eType == EntityType::Fox){
-                nearbyFoxes.push_back(dynamic_cast<Fox*>(entity.get()));
-                entityTypeToInteract = EntityType::Fox;
+        if(!(*entity == *this )){
+            std::lock_guard lockE(entity->accessEntity);
+            float dis = Vector2::distance(this->pos, entity->pos);
+            if(dis <= gens.senseRadius){
+                if(entity->eType == EntityType::Fox){
+                    nearbyFoxes.push_back(dynamic_cast<Fox*>(entity.get()));
+                    entityTypeToInteract = EntityType::Fox;
 
-            }
-            else if(entity->eType == EntityType::Plant
-                    && entityTypeToInteract == EntityType::Plant){
-                nearbyPlants.push_back(dynamic_cast<Plant*>(entity.get()));
-                entityTypeToInteract = EntityType::Plant;
-            }
-            else if(entity->eType == EntityType::Rabbit && mostNeed == MostNeed::Reproduce
-                    && entityTypeToInteract != EntityType::Fox){
-                nearbyRabbit.push_back(dynamic_cast<Rabbit*>(entity.get()));
-                if(nearbyRabbit.back()->sex != this->sex && this->fertility == true){
-                    entityTypeToInteract = EntityType::Rabbit;
                 }
+                else if(entity->eType == EntityType::Plant
+                        && entityTypeToInteract == EntityType::Plant){
+                    nearbyPlants.push_back(dynamic_cast<Plant*>(entity.get()));
+                    entityTypeToInteract = EntityType::Plant;
+                }
+                else if(entity->eType == EntityType::Rabbit && mostNeed == MostNeed::Reproduce
+                        && entityTypeToInteract != EntityType::Fox){
+                    nearbyRabbit.push_back(dynamic_cast<Rabbit*>(entity.get()));
+                    if(nearbyRabbit.back()->sex != this->sex && this->fertility == true){
+                        entityTypeToInteract = EntityType::Rabbit;
+                    }
+                }
+                //Water needed
             }
-            //Water needed
         }
     }
     if(entityTypeToInteract == EntityType::Fox){
         Fox * nearestFox;
         float minDistance = gens.senseRadius;
         for(Fox * fox : nearbyFoxes){
+            std::lock_guard lockFox(fox->accessEntity);
             float distance = Vector2::distance(this->pos,fox->pos);
             if(distance<minDistance){
                 minDistance = distance;
                 nearestFox = fox;
             }
         }
+        std::lock_guard l(nearestFox->accessEntity);
         direction = this->pos - nearestFox->pos;
         direction.normalize();
     }
@@ -82,6 +88,7 @@ void Rabbit::update() {
         float minDistance = gens.senseRadius;
         bool nearestPlantNotEaten = false;
         for(Plant * plant : nearbyPlants){
+            std::lock_guard lockPlant(plant->accessEntity);
             float distance = Vector2::distance(this->pos,plant->pos);
             if(distance < 1){
                 this->eat(*plant);
@@ -94,6 +101,7 @@ void Rabbit::update() {
             }
         }
         if(nearestPlantNotEaten){
+            std::lock_guard l(nearestPlant->accessEntity);
             direction = nearestPlant->pos - this->pos;
             direction.normalize();
         }
@@ -103,6 +111,7 @@ void Rabbit::update() {
         float minDistance = gens.senseRadius;
         bool mateFound = false;
         for(Rabbit * rabbit : nearbyRabbit){
+            std::lock_guard lockRabbit(rabbit->accessEntity);
             if(rabbit->sex != this->sex && rabbit->fertility == true && this->fertility == true){
                 mateFound = true;
                 float distance = Vector2::distance(this->pos,rabbit->pos);
@@ -127,6 +136,7 @@ void Rabbit::update() {
             }
         }
         if(mateFound){
+            std::lock_guard l(nearestRabbit->accessEntity);
             direction =  nearestRabbit->pos - this->pos;
             direction.normalize();
         }
@@ -163,6 +173,7 @@ void Rabbit::update() {
 
 
 void Rabbit::Reproduce(const Animal * father){
+    std::lock_guard thisLock(accessEntity);
     this->fertility = false;
     this->infertilityDuration = 200;
     this->urgeToReproduce -= 50;

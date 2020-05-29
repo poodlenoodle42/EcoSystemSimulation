@@ -31,16 +31,16 @@ Gens Animal::CalcNewGens(const Animal *father)const{
     std::uniform_int_distribution<short> randBool(0,1);
    // float random = dist(mt);
     Gens newGens;
-    //Gens from wich parent
+    //Gens from which parent
     {
         std::lock_guard lockfather(father->accessEntity);
-        std::lock_guard lockmother(accessEntity);
+        //std::lock_guard lockmother(accessEntity); already locked in Reproduce
         newGens.speed = randBool(mt) ? father->gens.speed : this->gens.speed;
         newGens.senseRadius = randBool(mt) ? father->gens.senseRadius : this->gens.senseRadius;
         newGens.energyEfficiency = randBool(mt) ? father->gens.energyEfficiency : this->gens.energyEfficiency;
     }
     if(dist(mt) < mutateProbability){
-        if(dist(mt)>=50){//50-50 of Positive or negativ mutation
+        if(dist(mt)>=50){//50-50 of Positive or negative mutation
             newGens.energyEfficiency += 0.3f;
         }
         else{
@@ -49,7 +49,7 @@ Gens Animal::CalcNewGens(const Animal *father)const{
     }
 
     if(dist(mt) < mutateProbability){
-        if(dist(mt)>=50){//50-50 of Positive or negativ mutation
+        if(dist(mt)>=50){//50-50 of Positive or negative mutation
             newGens.speed += 0.3f;
         }
         else{
@@ -91,7 +91,7 @@ float Animal::getHunger() const
 
 
 void Animal::calcMostNeed(){
-    std::lock_guard lock(accessEntity);
+    //std::lock_guard lock(accessEntity); already locked in update
     if(hunger>thirst && hunger>=urgeToReproduce){
         mostNeed = MostNeed::Foot;
     }
@@ -104,7 +104,7 @@ void Animal::calcMostNeed(){
 }
 
 void Animal::eat(Entity &eaten){
-    std::lock_guard lockeaten(eaten.accessEntity);
+    //std::lock_guard lockeaten(eaten.accessEntity); should already be locked (in update)
     int entityIndex = nextEnviroment->getEntityIndexByID(eaten.id);
     if(entityIndex == -1 ){
         // Entity with this id was already deleted for some reason
@@ -113,7 +113,7 @@ void Animal::eat(Entity &eaten){
     else{
         eaten.dead = true;
         nextEnviroment->removeEntity(entityIndex);
-        std::lock_guard lockthis(accessEntity);
+        //std::lock_guard lockthis(accessEntity); should already be locked (in update)
         if(this->eType == EntityType::Fox){
             this->hunger -= 20;
         }

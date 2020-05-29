@@ -15,6 +15,9 @@ void Entity::setnextEnviroment(Enviroment *nextEnviroment){
     this->nextEnviroment = nextEnviroment;
 }
 
+bool Entity::operator==(const Entity &e) const{
+    return id == e.id;
+}
 
 void Enviroment::newPlants(const int amountOfNewPlants){
     std::lock_guard<std::mutex> lock(protectEntitys);

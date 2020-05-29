@@ -25,6 +25,7 @@ public:
     void setnextEnviroment(Enviroment * nextEnviroment);
     bool dead = false;
     bool updated = false;
+    bool operator == (const Entity &e)const;
 protected:
     Enviroment * currentEnviroment; //former Enviroment
     Enviroment * nextEnviroment;
