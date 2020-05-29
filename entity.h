@@ -24,6 +24,7 @@ public:
     static int idCount;
     void setnextEnviroment(Enviroment * nextEnviroment);
     bool dead = false;
+    mutable std::mutex accessUpdated;
     bool updated = false;
     bool operator == (const Entity &e)const;
 protected:
@@ -69,7 +70,7 @@ struct Enviroment{
         return *this;
 
     }
-    std::mutex protectEntitys;
+    mutable std::mutex protectEntitys;
     std::vector<std::shared_ptr<Entity>> Entitys;
     Vector2 minCoordinates;
     Vector2 maxCoordinates;

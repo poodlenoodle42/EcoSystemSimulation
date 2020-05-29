@@ -34,6 +34,7 @@ EnviromentStatistics Enviroment::calcEnviromentStatistics()const{
     statistics.averageRabbitGens.speed = 0;
     statistics.averageRabbitGens.senseRadius = 0;
     statistics.averageRabbitGens.energyEfficiency = 0;
+    std::lock_guard lock(protectEntitys);
     for(const auto entity : Entitys){
         statistics.typeCounts[entity->eType]++;
         if(entity->eType == EntityType::Rabbit){
@@ -55,6 +56,7 @@ EnviromentStatistics Enviroment::calcEnviromentStatistics()const{
 }
 const std::shared_ptr<Animal> Enviroment::getAnimal(const std::shared_ptr<Animal> an)const
 {
+    std::lock_guard l(protectEntitys);
     for(const auto entity : Entitys){
         if(entity->eType == an->eType){
             return std::dynamic_pointer_cast<Animal>(entity);

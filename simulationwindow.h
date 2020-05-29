@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "animal.h" //Includes Vector2
 #include <QtCharts>
+#include <thread>
 namespace Ui {
 class SimulationWindow;
 }
@@ -88,6 +89,14 @@ private:
 
     unsigned int timeStepCount = 0;
 
+    const uint threadCount = std::thread::hardware_concurrency();
+
+    std::vector<std::thread> threadPool;
+    std::vector<bool> threadPoolFinished;
+    bool execute = false;
+    void initThreadPool();
+
+    bool allThreadsFinished()const;
 
 
 };

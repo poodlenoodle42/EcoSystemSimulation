@@ -120,6 +120,12 @@ SimulationWindow::SimulationWindow(QWidget *parent) :
     newPlantsPerSteep->axisY()->setTitleText("Number of new Plants");
     ui->NewPlantsPerSteep->setChart(newPlantsPerSteep);
 
+    initThreadPool();
+
+    for(uint i = 0 ; i<threadCount;i++){
+        threadPoolFinished.push_back(false);
+    }
+
 }
 
 SimulationWindow::~SimulationWindow()
@@ -148,6 +154,10 @@ SimulationWindow::~SimulationWindow()
     delete totalPlantsS;
     delete timer;
     delete ui;
+
+    for(std::thread &t : threadPool){
+        t.join();
+    }
 }
 
 void SimulationWindow::initilizeEnviroment(){
@@ -205,6 +215,37 @@ const std::map<Animal::MostNeed,QString> mostNeedNames = {
     {Animal::MostNeed::Water, QString("Water")},
     {Animal::MostNeed::Reproduce, QString("Reproduce")}
 };
+
+bool SimulationWindow::allThreadsFinished()const{
+    for(const bool b: threadPoolFinished){
+        if(!b){
+            return false;
+        }
+    }
+    return true;
+}
+
+void SimulationWindow::initThreadPool(){
+    const auto threadFun = [&](const uint id){
+        while(!execute){}
+        for(const auto entity : enviroment.Entitys){
+            entity->accessUpdated.lock();
+            if(!entity->updated){
+                entity->updated = true;
+                entity->accessUpdated.unlock();
+                entity->update();
+            }
+            else{
+                entity->accessUpdated.unlock();
+            }
+        }
+        threadPoolFinished[id] = true;
+    };
+    for(uint i =0 ;i<threadCount;i++){
+        threadPool.push_back(std::thread(threadFun,i));
+    }
+}
+
 void SimulationWindow::updateEnviroment(){
     static char count = 10;
     if(count == 10){
@@ -224,9 +265,12 @@ void SimulationWindow::updateEnviroment(){
         entity->setnextEnviroment(&newEnviroment);
     }
     newEnviroment = enviroment;
-    for(const auto entity : enviroment.Entitys){
-        entity->update();
+    for(auto entity : enviroment.Entitys){
+        entity->updated = false;
     }
+    execute = true;
+    while (!allThreadsFinished()) {}
+    execute = false;
     enviroment = newEnviroment;
 
     std::shared_ptr<Animal> cAnimal = ui->simulationView->lastClickedAnimal;

@@ -27,8 +27,8 @@ void SimulationView::paintGL(){
     const float YScale = this->height() / enviroment->maxCoordinates.y;
     const float minScale = XScale < YScale ? XScale : YScale;
     const int squareSize = 2 * minScale;
-    const int borderSize = 1.3 * squareSize;
-    const int borderdistance = (borderSize - squareSize)/2;
+    //const int borderSize = 1.3 * squareSize;
+    //const int borderdistance = (borderSize - squareSize)/2;
     for(const std::shared_ptr<Entity> entity : enviroment->Entitys){
         p.fillRect(entity->pos.x*XScale-(squareSize/2),entity->pos.y*YScale-(squareSize/2),
                    squareSize,squareSize,colorTable.at(entity->eType));
