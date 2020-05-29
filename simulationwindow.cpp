@@ -119,12 +119,13 @@ SimulationWindow::SimulationWindow(QWidget *parent) :
     newPlantsPerSteep->axisX()->setTitleText("Time");
     newPlantsPerSteep->axisY()->setTitleText("Number of new Plants");
     ui->NewPlantsPerSteep->setChart(newPlantsPerSteep);
-
-    initThreadPool();
-
     for(uint i = 0 ; i<threadCount;i++){
         threadPoolFinished.push_back(false);
+        startExec.push_back(false);
     }
+    initThreadPool();
+
+
 
 }
 
@@ -227,7 +228,7 @@ bool SimulationWindow::allThreadsFinished()const{
 
 void SimulationWindow::initThreadPool(){
     const auto threadFun = [&](const uint id){
-        while(!execute){}
+        while(!startExec[id]){}
         for(const auto entity : enviroment.Entitys){
             entity->accessUpdated.lock();
             if(!entity->updated){
@@ -240,6 +241,7 @@ void SimulationWindow::initThreadPool(){
             }
         }
         threadPoolFinished[id] = true;
+        startExec[id] = false;
     };
     for(uint i =0 ;i<threadCount;i++){
         threadPool.push_back(std::thread(threadFun,i));
@@ -268,9 +270,11 @@ void SimulationWindow::updateEnviroment(){
     for(auto entity : enviroment.Entitys){
         entity->updated = false;
     }
-    execute = true;
+    for(uint i = 0 ; i<threadCount;i++){
+        threadPoolFinished[i] = false;
+        startExec[i] = true;
+    }
     while (!allThreadsFinished()) {}
-    execute = false;
     enviroment = newEnviroment;
 
     std::shared_ptr<Animal> cAnimal = ui->simulationView->lastClickedAnimal;

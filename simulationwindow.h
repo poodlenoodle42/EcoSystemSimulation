@@ -93,7 +93,7 @@ private:
 
     std::vector<std::thread> threadPool;
     std::vector<bool> threadPoolFinished;
-    bool execute = false;
+    std::vector<bool> startExec;
     void initThreadPool();
 
     bool allThreadsFinished()const;
