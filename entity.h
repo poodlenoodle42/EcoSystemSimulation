@@ -83,6 +83,7 @@ struct Enviroment{
     }
     int getEntityIndexByID(uint entityID)const{
         int index = 0;
+        std::lock_guard l(protectEntitys);
         for(const std::shared_ptr<Entity> e : Entitys){
             if(entityID == e->id){
                 return index;

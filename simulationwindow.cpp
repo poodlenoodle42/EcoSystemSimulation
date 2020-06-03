@@ -212,7 +212,7 @@ const std::map<Animal::Activity,QString> activityNames = {
     {Animal::Activity::SearchingForMate,QString("Searching for Mate")}
 };
 const std::map<Animal::MostNeed,QString> mostNeedNames = {
-    {Animal::MostNeed::Foot,QString("Foot")},
+    {Animal::MostNeed::Foot,QString("Food")},
     {Animal::MostNeed::Water, QString("Water")},
     {Animal::MostNeed::Reproduce, QString("Reproduce")}
 };
@@ -228,20 +228,22 @@ bool SimulationWindow::allThreadsFinished()const{
 
 void SimulationWindow::initThreadPool(){
     const auto threadFun = [&](const uint id){
-        while(!startExec[id]){}
-        for(const auto entity : enviroment.Entitys){
-            entity->accessUpdated.lock();
-            if(!entity->updated){
-                entity->updated = true;
-                entity->accessUpdated.unlock();
-                entity->update();
+        while(true){
+            while(!startExec[id]){}
+            for(const auto entity : enviroment.Entitys){
+                entity->accessUpdated.lock();
+                if(!entity->updated){
+                    entity->updated = true;
+                    entity->accessUpdated.unlock();
+                    entity->update();
+                }
+                else{
+                    entity->accessUpdated.unlock();
+                }
             }
-            else{
-                entity->accessUpdated.unlock();
-            }
+            threadPoolFinished[id] = true;
+            startExec[id] = false;
         }
-        threadPoolFinished[id] = true;
-        startExec[id] = false;
     };
     for(uint i =0 ;i<threadCount;i++){
         threadPool.push_back(std::thread(threadFun,i));

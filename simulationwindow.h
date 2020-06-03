@@ -89,7 +89,7 @@ private:
 
     unsigned int timeStepCount = 0;
 
-    const uint threadCount = std::thread::hardware_concurrency();
+    const uint threadCount = 2;//std::thread::hardware_concurrency();
 
     std::vector<std::thread> threadPool;
     std::vector<bool> threadPoolFinished;

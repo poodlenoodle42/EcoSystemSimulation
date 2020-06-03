@@ -46,7 +46,7 @@ void Fox::update(){
     EntityType entityTypeToInteract = EntityType::Rabbit;
     for(const std::shared_ptr<Entity> entity : currentEnviroment->Entitys){
         if(!(*entity == *this )){
-            std::lock_guard lockE(entity->accessEntity);
+            //std::lock_guard lockE(entity->accessEntity);
             float dis = Vector2::distance(this->pos, entity->pos);
             if(dis <= gens.senseRadius){
                 if (entity->eType == EntityType::Rabbit && entityTypeToInteract == EntityType::Rabbit ) {
@@ -68,7 +68,7 @@ void Fox::update(){
         float minDistance = gens.senseRadius;
         bool mateFound = false;
         for(Fox * fox : nearbyFoxes){
-            std::lock_guard lockFox(fox->accessEntity);
+            //std::lock_guard lockFox(fox->accessEntity);
             if(fox->sex != this->sex && fox->fertility == true && this->fertility == true){
                 mateFound = true;
                 float distance = Vector2::distance(this->pos,fox->pos);
@@ -91,7 +91,7 @@ void Fox::update(){
             }
         }
         if(mateFound){
-            std::lock_guard l(nearestFox->accessEntity);
+            //std::lock_guard l(nearestFox->accessEntity);
             direction = nearestFox->pos - this->pos;
             direction.normalize();
         }
@@ -101,7 +101,7 @@ void Fox::update(){
         float minDistance = gens.senseRadius;
         bool nearRabbitNotEaten = false;
         for(Rabbit * rabbit : nearbyRabbits){
-            std::lock_guard lockRabbit(rabbit->accessEntity);
+            //std::lock_guard lockRabbit(rabbit->accessEntity);
             float distance = Vector2::distance(this->pos,rabbit->pos);
             if(distance<3){
                 this->eat(*rabbit);
@@ -114,7 +114,7 @@ void Fox::update(){
             }
         }
         if(nearRabbitNotEaten){
-            std::lock_guard lockRabbit(nearestRabbit->accessEntity);
+            //std::lock_guard lockRabbit(nearestRabbit->accessEntity);
             direction = nearestRabbit->pos - this->pos;
             direction.normalize();
         }

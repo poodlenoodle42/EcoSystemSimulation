@@ -44,7 +44,7 @@ void Rabbit::update() {
     EntityType entityTypeToInteract = EntityType::Plant;
     for(const std::shared_ptr<Entity> entity : currentEnviroment->Entitys){
         if(!(*entity == *this )){
-            std::lock_guard lockE(entity->accessEntity);
+            //std::lock_guard lockE(entity->accessEntity);
             float dis = Vector2::distance(this->pos, entity->pos);
             if(dis <= gens.senseRadius){
                 if(entity->eType == EntityType::Fox){
@@ -72,14 +72,14 @@ void Rabbit::update() {
         Fox * nearestFox;
         float minDistance = gens.senseRadius;
         for(Fox * fox : nearbyFoxes){
-            std::lock_guard lockFox(fox->accessEntity);
+            //std::lock_guard lockFox(fox->accessEntity);
             float distance = Vector2::distance(this->pos,fox->pos);
             if(distance<minDistance){
                 minDistance = distance;
                 nearestFox = fox;
             }
         }
-        std::lock_guard l(nearestFox->accessEntity);
+        //std::lock_guard l(nearestFox->accessEntity);
         direction = this->pos - nearestFox->pos;
         direction.normalize();
     }
@@ -88,7 +88,7 @@ void Rabbit::update() {
         float minDistance = gens.senseRadius;
         bool nearestPlantNotEaten = false;
         for(Plant * plant : nearbyPlants){
-            std::lock_guard lockPlant(plant->accessEntity);
+            //std::lock_guard lockPlant(plant->accessEntity);
             float distance = Vector2::distance(this->pos,plant->pos);
             if(distance < 1){
                 this->eat(*plant);
@@ -111,7 +111,7 @@ void Rabbit::update() {
         float minDistance = gens.senseRadius;
         bool mateFound = false;
         for(Rabbit * rabbit : nearbyRabbit){
-            std::lock_guard lockRabbit(rabbit->accessEntity);
+            //std::lock_guard lockRabbit(rabbit->accessEntity);
             if(rabbit->sex != this->sex && rabbit->fertility == true && this->fertility == true){
                 mateFound = true;
                 float distance = Vector2::distance(this->pos,rabbit->pos);
@@ -136,7 +136,7 @@ void Rabbit::update() {
             }
         }
         if(mateFound){
-            std::lock_guard l(nearestRabbit->accessEntity);
+            //std::lock_guard l(nearestRabbit->accessEntity);
             direction =  nearestRabbit->pos - this->pos;
             direction.normalize();
         }
