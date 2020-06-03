@@ -20,7 +20,6 @@ bool Entity::operator==(const Entity &e) const{
 }
 
 void Enviroment::newPlants(const int amountOfNewPlants){
-    std::lock_guard<std::mutex> lock(protectEntitys);
     for(int i = 0;i<amountOfNewPlants;i++){
         addEntity(std::make_shared<Plant>(Vector2::randomVec(minCoordinates,maxCoordinates),this));
     }

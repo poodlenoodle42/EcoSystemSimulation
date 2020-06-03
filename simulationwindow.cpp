@@ -241,6 +241,7 @@ void SimulationWindow::initThreadPool(){
                     entity->accessUpdated.unlock();
                 }
             }
+            std::lock_guard l(accessBoolVecs);
             threadPoolFinished[id] = true;
             startExec[id] = false;
         }
@@ -268,10 +269,11 @@ void SimulationWindow::updateEnviroment(){
     for(const auto entity : enviroment.Entitys){
         entity->setnextEnviroment(&newEnviroment);
     }
-    newEnviroment = enviroment;
+
     for(auto entity : enviroment.Entitys){
         entity->updated = false;
     }
+    newEnviroment = enviroment;
     for(uint i = 0 ; i<threadCount;i++){
         threadPoolFinished[i] = false;
         startExec[i] = true;

@@ -70,7 +70,7 @@ void Rabbit::update() {
     }
     if(entityTypeToInteract == EntityType::Fox){
         Fox * nearestFox;
-        float minDistance = gens.senseRadius;
+        float minDistance = gens.senseRadius*2;
         for(Fox * fox : nearbyFoxes){
             //std::lock_guard lockFox(fox->accessEntity);
             float distance = Vector2::distance(this->pos,fox->pos);
@@ -85,7 +85,7 @@ void Rabbit::update() {
     }
     else if(entityTypeToInteract == EntityType::Plant && this->hunger > 10){
         Plant * nearestPlant;
-        float minDistance = gens.senseRadius;
+        float minDistance = gens.senseRadius*2;
         bool nearestPlantNotEaten = false;
         for(Plant * plant : nearbyPlants){
             //std::lock_guard lockPlant(plant->accessEntity);
@@ -108,7 +108,7 @@ void Rabbit::update() {
     }
     else if(entityTypeToInteract == EntityType::Rabbit){
         Rabbit * nearestRabbit;
-        float minDistance = gens.senseRadius;
+        float minDistance = gens.senseRadius*2;
         bool mateFound = false;
         for(Rabbit * rabbit : nearbyRabbit){
             //std::lock_guard lockRabbit(rabbit->accessEntity);
@@ -173,7 +173,7 @@ void Rabbit::update() {
 
 
 void Rabbit::Reproduce(const Animal * father){
-    std::lock_guard thisLock(accessEntity);
+    //std::lock_guard thisLock(accessEntity);
     this->fertility = false;
     this->infertilityDuration = 200;
     this->urgeToReproduce -= 50;

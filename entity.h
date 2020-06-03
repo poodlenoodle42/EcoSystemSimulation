@@ -75,6 +75,7 @@ struct Enviroment{
     Vector2 minCoordinates;
     Vector2 maxCoordinates;
     void addEntity(std::shared_ptr<Entity> e){
+        std::lock_guard lock(protectEntitys);
         Entitys.push_back(e);
     }
     void removeEntity(int pos){
