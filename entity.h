@@ -5,6 +5,7 @@
 #include <random>
 #include <map>
 #include <mutex>
+typedef unsigned int uint;
 struct Enviroment;
 
 enum class EntityType{
