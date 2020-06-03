@@ -5,6 +5,7 @@
 #include "animal.h" //Includes Vector2
 #include <QtCharts>
 #include <thread>
+#include <atomic>
 namespace Ui {
 class SimulationWindow;
 }
@@ -95,6 +96,8 @@ private:
     std::mutex accessBoolVecs;
     std::vector<bool> threadPoolFinished;
     std::vector<bool> startExec;
+    std::atomic<bool> stopExec;
+    std::function<void(uint)> threadFun;
     void initThreadPool();
 
     bool allThreadsFinished()const;

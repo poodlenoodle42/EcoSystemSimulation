@@ -123,8 +123,26 @@ SimulationWindow::SimulationWindow(QWidget *parent) :
         threadPoolFinished.push_back(false);
         startExec.push_back(false);
     }
-    initThreadPool();
-
+    //initThreadPool();
+    threadFun = [&](const uint id){
+        while(!stopExec){
+            while(!startExec[id] && !stopExec){}
+            for(const auto entity : enviroment.Entitys){
+                entity->accessUpdated.lock();
+                if(!entity->updated){
+                    entity->updated = true;
+                    entity->accessUpdated.unlock();
+                    entity->update();
+                }
+                else{
+                    entity->accessUpdated.unlock();
+                }
+            }
+            std::lock_guard l(accessBoolVecs);
+            threadPoolFinished[id] = true;
+            startExec[id] = false;
+        }
+    };
 
 
 }
@@ -155,7 +173,7 @@ SimulationWindow::~SimulationWindow()
     delete totalPlantsS;
     delete timer;
     delete ui;
-
+    stopExec = true;
     for(std::thread &t : threadPool){
         t.join();
     }
@@ -226,30 +244,7 @@ bool SimulationWindow::allThreadsFinished()const{
     return true;
 }
 
-void SimulationWindow::initThreadPool(){
-    const auto threadFun = [&](const uint id){
-        while(true){
-            while(!startExec[id]){}
-            for(const auto entity : enviroment.Entitys){
-                entity->accessUpdated.lock();
-                if(!entity->updated){
-                    entity->updated = true;
-                    entity->accessUpdated.unlock();
-                    entity->update();
-                }
-                else{
-                    entity->accessUpdated.unlock();
-                }
-            }
-            std::lock_guard l(accessBoolVecs);
-            threadPoolFinished[id] = true;
-            startExec[id] = false;
-        }
-    };
-    for(uint i =0 ;i<threadCount;i++){
-        threadPool.push_back(std::thread(threadFun,i));
-    }
-}
+
 
 void SimulationWindow::updateEnviroment(){
     static char count = 10;
@@ -395,15 +390,26 @@ void SimulationWindow::on_addAverageRabbit_clicked()
 
 void SimulationWindow::on_StartButton_clicked()
 {
+    stopExec = false;
     if(!isPause){
         initilizeEnviroment();
     }
+
+    for(uint i = 0; i <threadCount;i++){
+        threadPool.push_back(std::thread(threadFun,i));
+    }
+
     timer->start(ui->SimulationSpeed->value());
 }
 
 void SimulationWindow::on_PauseButton_clicked()
 {
     isPause = true;
+    stopExec = true;
+    for(std::thread &t : threadPool){
+        t.join();
+    }
+    threadPool.clear();
     timer->stop();
 }
 
