@@ -76,7 +76,7 @@ struct Enviroment{
     Vector2 minCoordinates;
     Vector2 maxCoordinates;
     void addEntity(std::shared_ptr<Entity> e){
-        std::lock_guard lock(protectEntitys);
+        std::lock_guard<std::mutex> lock(protectEntitys);
         Entitys.push_back(e);
     }
     void removeEntity(int pos){
@@ -85,7 +85,7 @@ struct Enviroment{
     }
     int getEntityIndexByID(uint entityID)const{
         int index = 0;
-        std::lock_guard l(protectEntitys);
+        std::lock_guard<std::mutex> l(protectEntitys);
         for(const std::shared_ptr<Entity> e : Entitys){
             if(entityID == e->id){
                 return index;

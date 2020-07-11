@@ -9,7 +9,7 @@ Fox::Fox(Vector2 pos,  Enviroment * enviroment,float mutateProbability) : Animal
     this->gens.energyEfficiency /= 1.5;
     std::random_device rd;
     std::mt19937 mt(rd());
-    std::uniform_int_distribution randBool(0,1);
+    std::uniform_int_distribution<int> randBool(0,1);
     if(randBool(mt)){
         this->sex = Gender::Male;
     }
@@ -20,7 +20,7 @@ Fox::Fox(Vector2 pos,  Enviroment * enviroment,float mutateProbability) : Animal
 
 
 void Fox::update(){
-    std::lock_guard thisLock(accessEntity);
+    std::lock_guard<std::mutex> thisLock(accessEntity);
     if(this->hunger > 200){
         //Starving to death
         int index = nextEnviroment->getEntityIndexByID(this->id);

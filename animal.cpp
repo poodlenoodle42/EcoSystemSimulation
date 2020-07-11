@@ -8,7 +8,7 @@ Animal::Animal(Vector2 pos, Enviroment * enviroment, float mutateProbability) : 
     this->mutateProbability = mutateProbability;
     std::random_device rd;
     std::mt19937 mt(rd());
-    std::uniform_int_distribution sexGenerator(0,100);
+    std::uniform_int_distribution<int> sexGenerator(0,100);
     int sex = sexGenerator(mt);
     if(sex < 50){
         this->sex = Gender::Male;
@@ -33,7 +33,7 @@ Gens Animal::CalcNewGens(const Animal *father)const{
     Gens newGens;
     //Gens from which parent
     {
-        std::lock_guard lockfather(father->accessEntity);
+        std::lock_guard<std::mutex> lockfather(father->accessEntity);
         //std::lock_guard lockmother(accessEntity); already locked in Reproduce
         newGens.speed = randBool(mt) ? father->gens.speed : this->gens.speed;
         newGens.senseRadius = randBool(mt) ? father->gens.senseRadius : this->gens.senseRadius;

@@ -6,6 +6,7 @@
 #include "plant.h"
 #include <QTimer>
 #include <QDebug>
+
 SimulationWindow::SimulationWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::SimulationWindow)
@@ -138,7 +139,7 @@ SimulationWindow::SimulationWindow(QWidget *parent) :
                     entity->accessUpdated.unlock();
                 }
             }
-            std::lock_guard l(accessBoolVecs);
+            std::lock_guard<std::mutex> l(accessBoolVecs);
             threadPoolFinished[id] = true;
             startExec[id] = false;
         }
@@ -298,7 +299,7 @@ void SimulationWindow::updateEnviroment(){
 #define SET_MAX_X(chart) chart->axisX()->setMax(timeStep)
 #define SET_MAX_Y(chart,cmax,value) if(value > cmax){cmax = value; chart->axisY()->setMax(value+1);}
 void SimulationWindow::updateStatistics(const EnviromentStatistics &stats,const unsigned int timeStep){
-    if(!isnan(stats.averageFoxGens.speed)){
+    if(!std::isnan(stats.averageFoxGens.speed)){
         averageFoxGens = stats.averageFoxGens;
         foxPopulationS->append(timeStep,stats.typeCounts.at(EntityType::Fox));
         SET_MAX_X(foxPopulation);
@@ -314,7 +315,7 @@ void SimulationWindow::updateStatistics(const EnviromentStatistics &stats,const 
         SET_MAX_Y(foxEnergyEficiency,foxEnergyEficiencyMax,stats.averageFoxGens.energyEfficiency);
     }
 
-    if(!isnan(stats.averageRabbitGens.speed)){
+    if(!std::isnan(stats.averageRabbitGens.speed)){
         averageRabbitGens = stats.averageRabbitGens;
         rabbitPopulationS->append(timeStep,stats.typeCounts.at(EntityType::Rabbit));
         SET_MAX_X(rabbitPopulation);

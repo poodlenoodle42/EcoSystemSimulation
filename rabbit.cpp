@@ -7,7 +7,7 @@ Rabbit::Rabbit(Vector2 pos, Enviroment * enviroment,float mutateProbability):Ani
     //Gender
     std::random_device rd;
     std::mt19937 mt(rd());
-    std::uniform_int_distribution randBool(0,1);
+    std::uniform_int_distribution<int> randBool(0,1);
     if(randBool(mt)){
         this->sex = Gender::Male;
     }
@@ -17,7 +17,7 @@ Rabbit::Rabbit(Vector2 pos, Enviroment * enviroment,float mutateProbability):Ani
 }
 
 void Rabbit::update() {
-    std::lock_guard thisLock(accessEntity);
+    std::lock_guard<std::mutex> thisLock(accessEntity);
     if(this->hunger > 200){
         //Starving to death
         this->dead = true;
@@ -101,7 +101,7 @@ void Rabbit::update() {
             }
         }
         if(nearestPlantNotEaten){
-            std::lock_guard l(nearestPlant->accessEntity);
+            std::lock_guard<std::mutex> l(nearestPlant->accessEntity);
             direction = nearestPlant->pos - this->pos;
             direction.normalize();
         }
